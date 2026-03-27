@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
@@ -17,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.className} dark`}>
-      <body className="min-h-screen bg-zinc-950 text-white antialiased">
+    <html lang="en" className={`${dmSans.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-screen bg-[#0a0a0c] text-white antialiased font-[family-name:var(--font-sans)]">
         {children}
       </body>
     </html>

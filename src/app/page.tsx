@@ -4,8 +4,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+const FEATURED = [
+  { org: "upstash", repo: "ratelimit-js" },
+  { org: "vercel", repo: "ai" },
+  { org: "prisma", repo: "prisma" },
+  { org: "drizzle-team", repo: "drizzle-orm" },
+  { org: "honojs", repo: "hono" },
+  { org: "langchain-ai", repo: "langchainjs" },
+];
+
 export default function Home() {
   const [repo, setRepo] = useState("");
+  const [focused, setFocused] = useState(false);
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -23,87 +33,102 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-6 relative overflow-hidden">
-      {/* Grid background */}
+      {/* Noise texture overlay */}
       <div
-        className="fixed inset-0 pointer-events-none"
+        className="fixed inset-0 pointer-events-none opacity-[0.03]"
         style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
         }}
       />
 
-      {/* Glow effects */}
-      <div className="fixed -top-48 -right-24 w-[500px] h-[500px] rounded-full bg-blue-500 opacity-[0.04] blur-[120px] pointer-events-none" />
-      <div className="fixed -bottom-48 -left-24 w-[500px] h-[500px] rounded-full bg-violet-500 opacity-[0.04] blur-[120px] pointer-events-none" />
+      {/* Radial glow */}
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full bg-emerald-500/[0.04] blur-[150px] pointer-events-none" />
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[400px] h-[300px] bg-emerald-400/[0.02] blur-[100px] pointer-events-none" />
 
-      <div className="relative z-10 text-center max-w-md w-full">
+      <div className="relative z-10 text-center max-w-xl w-full">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
+        <div className="flex items-center justify-center gap-3 mb-12">
           <Image
             src="/context7-logo-emerald.svg"
             alt="Context7"
-            width={120}
-            height={28}
-            className="opacity-90"
+            width={110}
+            height={26}
+            className="opacity-80"
           />
-          <span className="text-[13px] font-semibold tracking-wide uppercase text-zinc-500">
+          <div className="h-5 w-px bg-white/10" />
+          <span className="text-[12px] font-mono font-medium tracking-[0.15em] uppercase text-emerald-400/70">
             Wiki
           </span>
         </div>
 
-        <h1 className="text-3xl font-bold tracking-tight mb-3">
-          Code documentation for
+        {/* Headline */}
+        <h1 className="text-[42px] font-bold tracking-[-0.035em] leading-[1.1] mb-4 text-white/95">
+          Understand any
           <br />
-          any open source repo
+          <span className="text-emerald-400">codebase</span>, instantly.
         </h1>
-        <p className="text-zinc-500 text-[15px] mb-10 leading-relaxed">
-          AI-generated docs from source code analysis.
-          <br />
-          Enter a GitHub repository to get started.
+        <p className="text-[15px] text-white/40 mb-10 leading-relaxed max-w-sm mx-auto">
+          AI-generated documentation from source code.
+          Architecture, APIs, guides — in minutes.
         </p>
 
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <div className="relative flex-1">
-            <svg
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-600"
-              width="15"
-              height="15"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.3-4.3" />
-            </svg>
+        {/* Search */}
+        <form onSubmit={handleSubmit} className="relative max-w-md mx-auto mb-12">
+          <div
+            className={`relative transition-all duration-300 ${
+              focused
+                ? "shadow-[0_0_30px_rgba(16,185,129,0.08)]"
+                : ""
+            }`}
+          >
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-mono text-[13px] text-white/20 select-none">
+              &gt;
+            </span>
             <input
               type="text"
               value={repo}
               onChange={(e) => setRepo(e.target.value)}
-              placeholder="upstash/ratelimit-js"
-              className="w-full bg-white/[0.03] border border-white/[0.07] rounded-[10px] pl-10 pr-4 py-3 text-white placeholder:text-zinc-600 text-[13.5px] focus:outline-none focus:border-blue-500/35 focus:ring-2 focus:ring-blue-500/[0.06] transition-all"
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              placeholder="owner/repository"
+              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl pl-9 pr-24 py-3.5 text-[14px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-emerald-500/30 transition-all"
             />
+            <button
+              type="submit"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-emerald-500 text-[#0a0a0c] font-semibold rounded-lg px-5 py-2 text-[13px] hover:bg-emerald-400 active:bg-emerald-600 transition-colors"
+            >
+              Explore
+            </button>
           </div>
-          <button
-            type="submit"
-            className="bg-white text-zinc-950 font-semibold rounded-[10px] px-6 py-3 text-[13.5px] hover:bg-zinc-200 hover:-translate-y-px hover:shadow-lg hover:shadow-black/30 active:translate-y-0 transition-all"
-          >
-            Go
-          </button>
         </form>
 
-        <p className="text-zinc-700 text-xs mt-6">
-          Powered by{" "}
-          <a
-            href="https://context7.com"
-            className="text-zinc-500 hover:text-zinc-300 transition-colors"
-          >
-            Context7
-          </a>
-        </p>
+        {/* Featured repos */}
+        <div className="space-y-3">
+          <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-white/15">
+            Try a library
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {FEATURED.map(({ org, repo }) => (
+              <button
+                key={`${org}/${repo}`}
+                onClick={() => router.push(`/${org}/${repo}`)}
+                className="px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[12px] font-mono text-white/35 hover:text-emerald-400/80 hover:border-emerald-500/20 hover:bg-emerald-500/[0.04] transition-all duration-200"
+              >
+                {org}/{repo}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="absolute bottom-6 text-center">
+        <a
+          href="https://context7.com"
+          className="text-[11px] font-mono text-white/15 hover:text-white/30 transition-colors"
+        >
+          context7.com
+        </a>
       </div>
     </div>
   );
