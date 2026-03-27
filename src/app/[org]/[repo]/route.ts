@@ -1,4 +1,4 @@
-import { getCodeDocs, setCodeDocs } from "@/lib/redis";
+import { getCodeDocs } from "@/lib/redis";
 import { ensureBoxRunning } from "@/lib/box";
 import { Client } from "@upstash/workflow";
 import { NextRequest, NextResponse } from "next/server";
@@ -62,22 +62,9 @@ export async function POST(
 
     const finalRepoUrl = repoUrl || `https://github.com/${org}/${repo}`;
 
-    await setCodeDocs(projectName, {
-      project: projectName,
-      generatedAt: new Date().toISOString(),
-      boxId: "",
-      previewUrl: "",
-      fileCount: 0,
-      status: "generating",
-      repoUrl: finalRepoUrl,
-      branch: "main",
-    });
-
     // Trigger the workflow
     const client = new Client({ token: process.env.QSTASH_TOKEN! });
-    const baseUrl = process.env.UPSTASH_WORKFLOW_URL || process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
+    const baseUrl = process.env.UPSTASH_WORKFLOW_URL || `https://${process.env.VERCEL_URL}`;
 
     await client.trigger({
       url: `${baseUrl}/api/workflow`,
