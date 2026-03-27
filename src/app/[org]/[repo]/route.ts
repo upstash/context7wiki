@@ -1,5 +1,6 @@
-import { getCodeDocs } from "@/lib/redis";
+import { getCodeDocs, setCodeDocs } from "@/lib/redis";
 import { ensureBoxRunning } from "@/lib/box";
+import { Client } from "@upstash/workflow";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -59,7 +60,7 @@ export async function POST(
       return NextResponse.json({ status: "generating", message: "Already in progress." });
     }
 
-    const { default: redis, setCodeDocs } = await import("@/lib/redis");
+    const finalRepoUrl = repoUrl || `https://github.com/${org}/${repo}`;
 
     await setCodeDocs(projectName, {
       project: projectName,
@@ -68,20 +69,28 @@ export async function POST(
       previewUrl: "",
       fileCount: 0,
       status: "generating",
-      repoUrl: repoUrl || `https://github.com/${org}/${repo}`,
+      repoUrl: finalRepoUrl,
       branch: "main",
     });
 
-    await redis.lpush("#codedocs-queue#", JSON.stringify({
-      project: projectName,
-      email,
-      repoUrl: repoUrl || `https://github.com/${org}/${repo}`,
-      requestedAt: new Date().toISOString(),
-    }));
+    // Trigger the workflow
+    const client = new Client({ token: process.env.QSTASH_TOKEN! });
+    const baseUrl = process.env.UPSTASH_WORKFLOW_URL || process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000";
+
+    await client.trigger({
+      url: `${baseUrl}/api/workflow`,
+      body: {
+        project: projectName,
+        email,
+        repoUrl: finalRepoUrl,
+      },
+    });
 
     return NextResponse.json({
       status: "generating",
-      message: "Documentation generation started.",
+      message: "Documentation generation started. You'll be emailed when it's ready.",
     });
   } catch (error) {
     console.error("Error:", error);
